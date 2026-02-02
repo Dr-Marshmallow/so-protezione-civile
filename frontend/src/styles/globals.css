@@ -1,15 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap');
 
 :root {
-  --bg: #f4f1ed;
+  --bg: #f7efef;
   --panel: #ffffff;
-  --ink: #1b1f24;
-  --muted: #5f6b77;
-  --accent: #0f6f5c;
-  --accent-dark: #0a5849;
-  --border: #d8d3cd;
-  --warning: #c7552d;
-  --shadow: 0 10px 30px rgba(15, 19, 25, 0.08);
+  --ink: #1a1313;
+  --muted: #6b4a4a;
+  --accent: #c1121f;
+  --accent-dark: #8b0f17;
+  --border: #e2c8c8;
+  --warning: #a03a1f;
+  --shadow: 0 10px 30px rgba(30, 10, 10, 0.1);
 }
 
 * {
@@ -19,7 +19,7 @@
 body {
   margin: 0;
   font-family: 'Source Sans 3', system-ui, sans-serif;
-  background: radial-gradient(circle at top, #f9f7f3, #efe9e2 60%, #e7ded4);
+  background: radial-gradient(circle at top, #fff5f5, #f3e4e4 60%, #e8d4d4);
   color: var(--ink);
 }
 
@@ -41,9 +41,10 @@ a:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 24px;
   margin-bottom: 24px;
+  text-align: center;
 }
 
 .top-action {
@@ -139,10 +140,44 @@ a:hover {
 
 .field input,
 .field select {
-  padding: 8px 10px;
+  padding: 10px 36px 10px 12px;
   border-radius: 8px;
   border: 1px solid var(--border);
   font-size: 0.95rem;
+  background-color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%),
+    linear-gradient(to right, transparent, transparent);
+  background-position:
+    calc(100% - 18px) calc(50% - 3px),
+    calc(100% - 12px) calc(50% - 3px),
+    100% 0;
+  background-size: 6px 6px, 6px 6px, 2.5em 2.5em;
+  background-repeat: no-repeat;
+}
+
+.field select option {
+  padding: 8px 10px;
+  color: var(--ink);
+  background-color: #fff;
+}
+
+.field select option:checked {
+  background-color: #fde8ea;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(193, 18, 31, 0.15);
 }
 
 .error-banner {
@@ -196,7 +231,7 @@ th {
 
 .sort-indicator {
   font-size: 0.85rem;
-  color: var(--accent);
+  color: var(--accent-dark);
 }
 
 .expand-button {
@@ -217,13 +252,13 @@ th {
 }
 
 .stato.in-corso {
-  background: #d7f3ed;
-  color: #0b5a4a;
+  background: #f8d7da;
+  color: #7a0b12;
 }
 
 .stato.da-fare {
-  background: #fde9d5;
-  color: #7a3c08;
+  background: #ffe4e6;
+  color: #8b0f17;
 }
 
 .expanded-row td {
@@ -247,7 +282,7 @@ th {
 @media (max-width: 768px) {
   .hero {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
   }
 
   .primary {

@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Filters from '../components/Filters'
 import InterventiTable from '../components/InterventiTable'
-import { fetchChiamate } from '../lib/api'
-import useDebouncedValue from '../lib/useDebouncedValue'
+import { fetchChiamate, fetchFilters } from '../lib/api'
 
 export default function Home() {
   const [startDate, setStartDate] = useState('')
@@ -14,12 +13,11 @@ export default function Home() {
   const [sortDir, setSortDir] = useState('desc')
 
   const [items, setItems] = useState([])
+  const [comuniOptions, setComuniOptions] = useState([])
+  const [descrizioniOptions, setDescrizioniOptions] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [lastUpdated, setLastUpdated] = useState('')
-
-  const debouncedComune = useDebouncedValue(comune, 300)
-  const debouncedDescrizione = useDebouncedValue(descrizione, 300)
 
   const toDMY = (value) => {
     if (!value) return ''
@@ -34,12 +32,12 @@ export default function Home() {
     const endDMY = toDMY(endDate)
     if (startDMY) params.startDate = startDMY
     if (endDMY) params.endDate = endDMY
-    if (debouncedComune) params.comune = debouncedComune
-    if (debouncedDescrizione) params.descrizione = debouncedDescrizione
+    if (comune) params.comune = comune
+    if (descrizione) params.descrizione = descrizione
     if (sortField) params.sortField = sortField
     if (sortDir) params.sortDir = sortDir
     return params
-  }, [startDate, endDate, debouncedComune, debouncedDescrizione, sortField, sortDir])
+  }, [startDate, endDate, comune, descrizione, sortField, sortDir])
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -58,6 +56,23 @@ export default function Home() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  useEffect(() => {
+    let active = true
+    fetchFilters()
+      .then((data) => {
+        if (!active) return
+        setComuniOptions(data.comuni || [])
+        setDescrizioniOptions(data.descrizioni || [])
+      })
+      .catch((err) => {
+        if (!active) return
+        setError(err.message || 'Errore durante il caricamento dei filtri')
+      })
+    return () => {
+      active = false
+    }
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -103,7 +118,6 @@ export default function Home() {
       <header className="hero">
         <div>
           <h1>SO Protezione Civile</h1>
-          <p>Interventi inoltrati dai vigili del fuoco, aggiornati in tempo quasi reale.</p>
         </div>
       </header>
 
@@ -113,6 +127,8 @@ export default function Home() {
           endDate={endDate}
           comune={comune}
           descrizione={descrizione}
+          comuniOptions={comuniOptions}
+          descrizioniOptions={descrizioniOptions}
           onChange={handleFilterChange}
           onReset={handleResetFilters}
         />

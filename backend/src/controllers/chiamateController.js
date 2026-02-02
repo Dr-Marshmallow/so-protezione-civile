@@ -1,4 +1,4 @@
-const { fetchChiamate } = require('../services/chiamateService')
+const { fetchChiamate, fetchFilterOptions } = require('../services/chiamateService')
 const { formatDateDMY, isValidDMY } = require('../utils/date')
 
 function parseFilters(query) {
@@ -87,5 +87,16 @@ async function getChiamate(req, res, next) {
 }
 
 module.exports = {
-  getChiamate
+  getChiamate,
+  getFilters: async (req, res, next) => {
+    try {
+      const data = await fetchFilterOptions()
+      res.json({
+        comuni: data.comuni,
+        descrizioni: data.descrizioni
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
 }

@@ -3,6 +3,8 @@ export default function Filters({
   endDate,
   comune,
   descrizione,
+  comuniOptions,
+  descrizioniOptions,
   onChange,
   onReset
 }) {
@@ -30,24 +32,34 @@ export default function Filters({
 
       <div className="field">
         <label htmlFor="comune">Comune</label>
-        <input
+        <select
           id="comune"
-          type="text"
-          placeholder="Es. Bari"
           value={comune}
           onChange={(e) => onChange('comune', e.target.value)}
-        />
+        >
+          <option value="">Tutti</option>
+          {comuniOptions.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="field">
-        <label htmlFor="descrizione">Descrizione</label>
-        <input
+        <label htmlFor="descrizione">Tipologia intervento</label>
+        <select
           id="descrizione"
-          type="text"
-          placeholder="Es. Incendio"
           value={descrizione}
           onChange={(e) => onChange('descrizione', e.target.value)}
-        />
+        >
+          <option value="">Tutte</option>
+          {descrizioniOptions.map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="field actions">

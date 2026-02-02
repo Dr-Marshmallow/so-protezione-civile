@@ -5,7 +5,7 @@ const HEADERS = [
   { key: 'numero_chiamata', label: 'Numero chiamata' },
   { key: 'comune', label: 'Comune' },
   { key: 'stato', label: 'Stato' },
-  { key: 'descrizione', label: 'Descrizione' }
+  { key: 'descrizione', label: 'Tipologia intervento' }
 ]
 
 function buildRowKey(item) {

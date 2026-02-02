@@ -72,7 +72,7 @@ function buildQuery(filters, sort) {
       DESC_LUOGO,
       COMUNE,
       MEZZI,
-      TELE_NUMERO,
+      TEL_NUMERO,
       PRIORITA,
       PRIMA_COMP,
       SECONDA_COMP,
@@ -110,6 +110,48 @@ async function fetchChiamate(filters, sort) {
   }
 }
 
+async function fetchFilterOptions() {
+  const connection = await getConnection()
+  try {
+    const binds = { priorityDefault: config.prioritaDefault }
+    const comuniResult = await connection.execute(
+      `
+        SELECT DISTINCT COMUNE
+        FROM CHIAMATE_INTERVENTI
+        WHERE PRIORITA = :priorityDefault
+          AND COMUNE IS NOT NULL
+        ORDER BY COMUNE
+      `,
+      binds,
+      { outFormat: undefined, statementTimeout: config.db.statementTimeoutMs }
+    )
+
+    const descrizioniResult = await connection.execute(
+      `
+        SELECT DISTINCT DESCRIZIONE
+        FROM CHIAMATE_INTERVENTI
+        WHERE PRIORITA = :priorityDefault
+          AND DESCRIZIONE IS NOT NULL
+        ORDER BY DESCRIZIONE
+      `,
+      binds,
+      { outFormat: undefined, statementTimeout: config.db.statementTimeoutMs }
+    )
+
+    const comuni = (comuniResult.rows || [])
+      .map((row) => row.COMUNE)
+      .filter(Boolean)
+    const descrizioni = (descrizioniResult.rows || [])
+      .map((row) => row.DESCRIZIONE)
+      .filter(Boolean)
+
+    return { comuni, descrizioni }
+  } finally {
+    await connection.close()
+  }
+}
+
 module.exports = {
-  fetchChiamate
+  fetchChiamate,
+  fetchFilterOptions
 }
