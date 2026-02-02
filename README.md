@@ -22,6 +22,8 @@ Configura `.env` con le credenziali Oracle:
 - `DB_USER`
 - `DB_PASSWORD`
 - `DB_CONNECT_STRING` (es. `host:port/service`)
+- `PRIORITA_DEFAULT` (default 3)
+- `DB_LIB_DIR` (opzionale, path Instant Client per modalità thick)
 
 ### 2) Frontend
 ```bash
@@ -57,9 +59,8 @@ npm start
 Query params supportati:
 - `startDate` (dd/mm/yyyy)
 - `endDate` (dd/mm/yyyy)
-- `comune` (testo)
-- `stato` (`tutti`, `in_corso`, `da_fare`)
-- `descrizione` (testo)
+- `comune` (testo o valore da dropdown)
+- `descrizione` (testo o valore da dropdown, in UI è “Tipologia intervento”)
 - `sortField` (`data_ora`, `numero_chiamata`, `comune`, `stato`, `descrizione`)
 - `sortDir` (`asc`, `desc`)
 
@@ -75,16 +76,24 @@ curl "http://localhost:4000/api/update_chiamate?startDate=01/01/2024&endDate=31/
 curl "http://localhost:4000/api/update_chiamate?sortField=descrizione&sortDir=asc"
 ```
 
+`GET /api/filters`
+
+Restituisce i valori univoci per popolare i dropdown:
+```json
+{ "comuni": ["..."], "descrizioni": ["..."] }
+```
+
 ## Modifica della condizione (PRIORITA=3)
 La logica di inoltro è centralizzata in:
 - `backend/src/utils/criterioInoltroProtezioneCivile.js`
 
 C’è un blocco commentato **MODIFICA QUI** dove cambiare la condizione. Di default:
 ```js
-return Number(chiamata.PRIORITA) === 3
+const target = Number.isFinite(opts.prioritaDefault) ? opts.prioritaDefault : 3
+return Number(chiamata.PRIORITA) === target
 ```
 
-> L’endpoint applica anche una condizione SQL equivalente per efficienza. Se cambi la logica, aggiorna anche il filtro SQL in `backend/src/services/chiamateService.js`.
+> L’endpoint applica anche una condizione SQL equivalente per efficienza. Se cambi la logica, aggiorna anche il filtro SQL in `backend/src/services/chiamateService.js` oppure modifica `PRIORITA_DEFAULT` nel `.env`.
 
 ## Rate limiting
 L’endpoint `/api/update_chiamate` accetta **massimo 1 richiesta al secondo** globalmente. Se superato risponde `429` con:
