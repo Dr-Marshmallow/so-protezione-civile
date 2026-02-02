@@ -72,7 +72,7 @@ function buildQuery(filters, sort) {
       DESC_LUOGO,
       COMUNE,
       MEZZI,
-      TEL_NUMERO,
+      TELE_NUMERO,
       PRIORITA,
       PRIMA_COMP,
       SECONDA_COMP,
