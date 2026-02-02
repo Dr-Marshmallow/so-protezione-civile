@@ -1,0 +1,139 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import Filters from '../components/Filters'
+import InterventiTable from '../components/InterventiTable'
+import { fetchChiamate } from '../lib/api'
+import useDebouncedValue from '../lib/useDebouncedValue'
+
+export default function Home() {
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [comune, setComune] = useState('')
+  const [descrizione, setDescrizione] = useState('')
+
+  const [sortField, setSortField] = useState('data_ora')
+  const [sortDir, setSortDir] = useState('desc')
+
+  const [items, setItems] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [lastUpdated, setLastUpdated] = useState('')
+
+  const debouncedComune = useDebouncedValue(comune, 300)
+  const debouncedDescrizione = useDebouncedValue(descrizione, 300)
+
+  const toDMY = (value) => {
+    if (!value) return ''
+    const [yyyy, mm, dd] = value.split('-')
+    if (!yyyy || !mm || !dd) return ''
+    return `${dd}/${mm}/${yyyy}`
+  }
+
+  const requestParams = useMemo(() => {
+    const params = {}
+    const startDMY = toDMY(startDate)
+    const endDMY = toDMY(endDate)
+    if (startDMY) params.startDate = startDMY
+    if (endDMY) params.endDate = endDMY
+    if (debouncedComune) params.comune = debouncedComune
+    if (debouncedDescrizione) params.descrizione = debouncedDescrizione
+    if (sortField) params.sortField = sortField
+    if (sortDir) params.sortDir = sortDir
+    return params
+  }, [startDate, endDate, debouncedComune, debouncedDescrizione, sortField, sortDir])
+
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await fetchChiamate(requestParams)
+      setItems(data.items || [])
+      setLastUpdated(new Date().toLocaleString('it-IT'))
+    } catch (err) {
+      setError(err.message || 'Errore durante il caricamento')
+    } finally {
+      setLoading(false)
+    }
+  }, [requestParams])
+
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadData()
+    }, 180000)
+    return () => clearInterval(interval)
+  }, [loadData])
+
+  const handleFilterChange = (field, value) => {
+    if (field === 'startDate') setStartDate(value)
+    if (field === 'endDate') setEndDate(value)
+    if (field === 'comune') setComune(value)
+    if (field === 'descrizione') setDescrizione(value)
+  }
+
+  const handleResetFilters = () => {
+    setStartDate('')
+    setEndDate('')
+    setComune('')
+    setDescrizione('')
+  }
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDir((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+      return
+    }
+    setSortField(field)
+    setSortDir('asc')
+  }
+
+  return (
+    <div className="page">
+      <div className="top-action">
+        <button className="primary" onClick={loadData} disabled={loading}>
+          Aggiorna ora
+        </button>
+        <div className="last-updated">
+          Ultimo aggiornamento: {lastUpdated || '-'}
+        </div>
+      </div>
+
+      <header className="hero">
+        <div>
+          <h1>SO Protezione Civile</h1>
+          <p>Interventi inoltrati dai vigili del fuoco, aggiornati in tempo quasi reale.</p>
+        </div>
+      </header>
+
+      <section className="panel">
+        <Filters
+          startDate={startDate}
+          endDate={endDate}
+          comune={comune}
+          descrizione={descrizione}
+          onChange={handleFilterChange}
+          onReset={handleResetFilters}
+        />
+      </section>
+
+      {error && <div className="error-banner">{error}</div>}
+
+      <section className="panel">
+        {loading ? (
+          <div className="loading">Caricamento in corso...</div>
+        ) : items.length === 0 ? (
+          <div className="empty">Nessun intervento trovato</div>
+        ) : (
+          <InterventiTable
+            items={items}
+            sortField={sortField}
+            sortDir={sortDir}
+            onSort={handleSort}
+          />
+        )}
+      </section>
+    </div>
+  )
+}
