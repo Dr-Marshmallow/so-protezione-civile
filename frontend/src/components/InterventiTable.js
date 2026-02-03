@@ -45,6 +45,7 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
                 </button>
               </th>
             ))}
+            <th className="expand-header" aria-hidden="true" />
           </tr>
         </thead>
         <tbody>
@@ -60,14 +61,6 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
               <Fragment key={key}>
                 <tr className="main-row">
                   <td>
-                    <button
-                      type="button"
-                      className="expand-button"
-                      onClick={() => toggleRow(key)}
-                      aria-expanded={isExpanded}
-                    >
-                      {isExpanded ? '-' : '+'}
-                    </button>
                     <span className="data-ora">
                       {item.DATA_CHIAMATA} {item.ORA_CHIAMATA || ''}
                     </span>
@@ -80,10 +73,21 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
                     </span>
                   </td>
                   <td>{item.DESCRIZIONE}</td>
+                  <td className="expand-cell">
+                    <button
+                      type="button"
+                      className={`expand-button ${isExpanded ? 'expanded' : ''}`}
+                      onClick={() => toggleRow(key)}
+                      aria-expanded={isExpanded}
+                      aria-label={isExpanded ? 'Chiudi dettagli' : 'Apri dettagli'}
+                    >
+                      <span className="chevron">▼</span>
+                    </button>
+                  </td>
                 </tr>
                 {isExpanded && (
                   <tr className="expanded-row">
-                    <td colSpan={5}>
+                    <td colSpan={6}>
                       <div className="expanded-content">
                         <div>
                           <strong>Note:</strong> {item.NOTE_INTERVENTO || '-'}
