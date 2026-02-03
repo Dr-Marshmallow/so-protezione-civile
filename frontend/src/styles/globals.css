@@ -275,12 +275,12 @@ th {
 
 .stato.in-corso {
   background: #f8d7da;
-  color: #7a0b12;
+  color: #878182;
 }
 
-.stato.da-fare {
+.stato.in-attesa {
   background: #ffe4e6;
-  color: #8b0f17;
+  color: #7a0b12;
 }
 
 .expanded-row td {

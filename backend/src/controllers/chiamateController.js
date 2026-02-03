@@ -29,8 +29,8 @@ function parseFilters(query) {
 
   if (query.stato) {
     const stato = String(query.stato).toLowerCase()
-    if (!['in_corso', 'da_fare', 'tutti'].includes(stato)) {
-      const err = new Error('Stato non valido. Usa: tutti, in_corso, da_fare.')
+    if (!['in_corso', 'in_attesa', 'tutti'].includes(stato)) {
+      const err = new Error('Stato non valido. Usa: tutti, in_corso, in_attesa.')
       err.status = 400
       err.expose = true
       throw err
@@ -49,7 +49,7 @@ function parseSort(query) {
 }
 
 function toResponseItem(row) {
-  const stato = row.DATA_INTERVENTO ? 'in corso' : 'da fare'
+  const stato = row.DATA_INTERVENTO ? 'in corso' : 'in attesa'
   const numero = row.NUMERO_CHIAMATA || row.CHIAMATA
 
   return {
