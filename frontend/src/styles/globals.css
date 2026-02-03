@@ -294,13 +294,13 @@ th {
 }
 
 .stato.in-corso {
-  background: #f8d7da;
-  color: #878182;
+  background: #e2dadb;
+  color: #131313;
 }
 
 .stato.in-attesa {
-  background: #ffe4e6;
-  color: #7a0b12;
+  background: #f568719f;
+  color: #131313;
 }
 
 .expanded-row td {
