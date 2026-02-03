@@ -3,6 +3,8 @@ import Filters from '../components/Filters'
 import InterventiTable from '../components/InterventiTable'
 import { fetchChiamate, fetchFilters } from '../lib/api'
 
+const REFRESH_MS = 180000
+
 export default function Home() {
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -18,6 +20,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [lastUpdated, setLastUpdated] = useState('')
+  const [nextRefreshMs, setNextRefreshMs] = useState(REFRESH_MS)
 
   const toDMY = (value) => {
     if (!value) return ''
@@ -50,6 +53,7 @@ export default function Home() {
       setError(err.message || 'Errore durante il caricamento')
     } finally {
       setLoading(false)
+      setNextRefreshMs(REFRESH_MS)
     }
   }, [requestParams])
 
@@ -77,9 +81,16 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       loadData()
-    }, 180000)
+    }, REFRESH_MS)
     return () => clearInterval(interval)
   }, [loadData])
+
+  useEffect(() => {
+    const tick = setInterval(() => {
+      setNextRefreshMs((prev) => Math.max(0, prev - 1000))
+    }, 1000)
+    return () => clearInterval(tick)
+  }, [])
 
   const handleFilterChange = (field, value) => {
     if (field === 'startDate') setStartDate(value)
@@ -104,22 +115,29 @@ export default function Home() {
     setSortDir('asc')
   }
 
+  const progress = Math.min(100, Math.max(0, ((REFRESH_MS - nextRefreshMs) / REFRESH_MS) * 100))
+  const nextSeconds = Math.ceil(nextRefreshMs / 1000)
+
   return (
     <div className="page">
-      <div className="top-action">
-        <button className="primary" onClick={loadData} disabled={loading}>
-          Aggiorna ora
-        </button>
-        <div className="last-updated">
-          Ultimo aggiornamento: {lastUpdated || '-'}
-        </div>
-      </div>
-
       <header className="hero">
         <div>
           <h1>SO Protezione Civile</h1>
         </div>
       </header>
+
+      <div className="top-action">
+        <div className="last-updated">
+          Ultimo aggiornamento: {lastUpdated || '-'}
+        </div>
+        <div className="progress" aria-hidden="true">
+          <div className="progress-bar" style={{ width: `${progress}%` }} />
+        </div>
+        <div className="progress-label">Prossimo aggiornamento tra {nextSeconds}s</div>
+        <button className="primary" onClick={loadData} disabled={loading}>
+          Aggiorna ora
+        </button>
+      </div>
 
       <section className="panel">
         <Filters
