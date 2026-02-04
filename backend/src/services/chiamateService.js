@@ -6,7 +6,6 @@ const SORT_MAP = {
   data_ora: 'DATA_CHIAMATA',
   numero_chiamata: 'NUMERO_CHIAMATA',
   comune: 'COMUNE',
-  stato: 'STATO',
   descrizione: 'DESCRIZIONE'
 }
 
@@ -19,12 +18,12 @@ function buildQuery(filters, sort) {
   binds.priorityDefault = config.prioritaDefault
 
   if (filters.startDate) {
-    where.push('DATA_CHIAMATA >= TO_DATE(:startDate, \'DD/MM/YYYY\')')
+    where.push("DATA_CHIAMATA >= TO_DATE(:startDate, 'DD/MM/YYYY')")
     binds.startDate = filters.startDate
   }
 
   if (filters.endDate) {
-    where.push('DATA_CHIAMATA <= TO_DATE(:endDate, \'DD/MM/YYYY\')')
+    where.push("DATA_CHIAMATA <= TO_DATE(:endDate, 'DD/MM/YYYY')")
     binds.endDate = filters.endDate
   }
 
@@ -38,20 +37,10 @@ function buildQuery(filters, sort) {
     binds.descrizione = `%${filters.descrizione.toUpperCase()}%`
   }
 
-  if (filters.stato === 'in_corso') {
-    where.push('DATA_INTERVENTO IS NOT NULL')
-  }
-
-  if (filters.stato === 'da_fare') {
-    where.push('DATA_INTERVENTO IS NULL')
-  }
-
   let orderBy = 'DATA_CHIAMATA DESC, ORA_CHIAMATA DESC'
   if (sort.field && SORT_MAP[sort.field]) {
     const dir = sort.direction === 'asc' ? 'ASC' : 'DESC'
-    if (sort.field === 'stato') {
-      orderBy = `CASE WHEN DATA_INTERVENTO IS NULL THEN 0 ELSE 1 END ${dir}`
-    } else if (sort.field === 'data_ora') {
+    if (sort.field === 'data_ora') {
       orderBy = `DATA_CHIAMATA ${dir}, ORA_CHIAMATA ${dir}`
     } else {
       orderBy = `${SORT_MAP[sort.field]} ${dir}`
@@ -138,12 +127,8 @@ async function fetchFilterOptions() {
       { outFormat: undefined, statementTimeout: config.db.statementTimeoutMs }
     )
 
-    const comuni = (comuniResult.rows || [])
-      .map((row) => row.COMUNE)
-      .filter(Boolean)
-    const descrizioni = (descrizioniResult.rows || [])
-      .map((row) => row.DESCRIZIONE)
-      .filter(Boolean)
+    const comuni = (comuniResult.rows || []).map((row) => row.COMUNE).filter(Boolean)
+    const descrizioni = (descrizioniResult.rows || []).map((row) => row.DESCRIZIONE).filter(Boolean)
 
     return { comuni, descrizioni }
   } finally {

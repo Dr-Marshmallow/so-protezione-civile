@@ -61,7 +61,7 @@ Query params supportati:
 - `endDate` (dd/mm/yyyy)
 - `comune` (testo o valore da dropdown)
 - `descrizione` (testo o valore da dropdown, in UI è “Tipologia intervento”)
-- `sortField` (`data_ora`, `numero_chiamata`, `comune`, `stato`, `descrizione`)
+- `sortField` (`data_ora`, `numero_chiamata`, `comune`, `descrizione`)
 - `sortDir` (`asc`, `desc`)
 
 Esempi:

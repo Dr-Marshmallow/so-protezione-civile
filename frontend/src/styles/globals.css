@@ -286,22 +286,6 @@ th {
   transform: rotate(180deg);
 }
 
-.stato {
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.stato.in-corso {
-  background: #e2dadb;
-  color: #131313;
-}
-
-.stato.in-attesa {
-  background: #f568719f;
-  color: #131313;
-}
 
 .expanded-row td {
   background: #fbfaf8;

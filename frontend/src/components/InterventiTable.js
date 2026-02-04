@@ -4,7 +4,6 @@ const HEADERS = [
   { key: 'data_ora', label: 'Data e ora' },
   { key: 'numero_chiamata', label: 'Numero chiamata' },
   { key: 'comune', label: 'Comune' },
-  { key: 'stato', label: 'Stato' },
   { key: 'descrizione', label: 'Tipologia intervento' }
 ]
 
@@ -67,11 +66,6 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
                   </td>
                   <td>{item.NUMERO_CHIAMATA}</td>
                   <td>{item.COMUNE}</td>
-                  <td>
-                    <span className={`stato ${item.stato === 'in corso' ? 'in-corso' : 'da-fare'}`}>
-                      {item.stato}
-                    </span>
-                  </td>
                   <td>{item.DESCRIZIONE}</td>
                   <td className="expand-cell">
                     <button
@@ -87,7 +81,7 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
                 </tr>
                 {isExpanded && (
                   <tr className="expanded-row">
-                    <td colSpan={6}>
+                    <td colSpan={5}>
                       <div className="expanded-content">
                         <div>
                           <strong>Note:</strong> {item.NOTE_INTERVENTO || '-'}

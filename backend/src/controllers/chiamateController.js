@@ -27,17 +27,6 @@ function parseFilters(query) {
   if (query.comune) filters.comune = String(query.comune).trim()
   if (query.descrizione) filters.descrizione = String(query.descrizione).trim()
 
-  if (query.stato) {
-    const stato = String(query.stato).toLowerCase()
-    if (!['in_corso', 'in_attesa', 'tutti'].includes(stato)) {
-      const err = new Error('Stato non valido. Usa: tutti, in_corso, in_attesa.')
-      err.status = 400
-      err.expose = true
-      throw err
-    }
-    if (stato !== 'tutti') filters.stato = stato
-  }
-
   return filters
 }
 
@@ -49,7 +38,6 @@ function parseSort(query) {
 }
 
 function toResponseItem(row) {
-  const stato = row.DATA_INTERVENTO ? 'in corso' : 'in attesa'
   const numero = row.NUMERO_CHIAMATA || row.CHIAMATA
 
   return {
@@ -57,7 +45,6 @@ function toResponseItem(row) {
     ORA_CHIAMATA: row.ORA_CHIAMATA || null,
     NUMERO_CHIAMATA: numero,
     COMUNE: row.COMUNE || null,
-    stato,
     DESCRIZIONE: row.DESCRIZIONE || null,
     NOTE_INTERVENTO: row.NOTE_INTERVENTO || null,
     DESC_LUOGO: row.DESC_LUOGO || null,
