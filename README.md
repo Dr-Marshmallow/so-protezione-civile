@@ -1,6 +1,6 @@
 # SO Protezione Civile
 
-Web app semplice e robusta per visualizzare gli interventi inoltrati dai vigili del fuoco alla protezione civile. Il backend interroga Oracle e il frontend mostra una tabella filtrabile, ordinabile e con aggiornamento automatico ogni 3 minuti.
+Web app semplice e robusta per visualizzare gli interventi inoltrati dai vigili del fuoco alla protezione civile. Il backend interroga Oracle e il frontend mostra una tabella filtrabile, ordinabile e con aggiornamento automatico a intervallo configurabile.
 
 ## Prerequisiti
 - Node.js 18+ (consigliato 20+)
@@ -18,7 +18,7 @@ npm install
 npm run dev
 ```
 
-Configura `.env` con le credenziali Oracle:
+Configura `.env` con:
 - `DB_USER`
 - `DB_PASSWORD`
 - `DB_CONNECT_STRING` (es. `host:port/service`)
@@ -33,7 +33,9 @@ npm install
 npm run dev
 ```
 
-Imposta `NEXT_PUBLIC_API_BASE_URL` verso il backend (es. `http://localhost:4000`).
+Configura `.env.local`:
+- `NEXT_PUBLIC_API_BASE_URL` (es. `http://localhost:4000`)
+- `NEXT_PUBLIC_REFRESH_MS` (intervallo refresh automatico in millisecondi, default `180000`)
 
 ## Avvio in produzione
 
@@ -56,11 +58,11 @@ npm start
 
 `GET /api/update_chiamate`
 
-Query params supportati:
+Query params supportati dal backend:
 - `startDate` (dd/mm/yyyy)
 - `endDate` (dd/mm/yyyy)
-- `comune` (testo o valore da dropdown)
-- `descrizione` (testo o valore da dropdown, in UI è “Tipologia intervento”)
+- `comune`
+- `descrizione`
 - `sortField` (`data_ora`, `numero_chiamata`, `comune`, `descrizione`)
 - `sortDir` (`asc`, `desc`)
 
@@ -78,16 +80,13 @@ curl "http://localhost:4000/api/update_chiamate?sortField=descrizione&sortDir=as
 
 `GET /api/filters`
 
-Restituisce i valori univoci per popolare i dropdown:
-```json
-{ "comuni": ["..."], "descrizioni": ["..."] }
-```
+Restituisce i valori univoci per `comuni` e `descrizioni`.
 
 ## Modifica della condizione (PRIORITA=3)
 La logica di inoltro è centralizzata in:
 - `backend/src/utils/criterioInoltroProtezioneCivile.js`
 
-C’è un blocco commentato **MODIFICA QUI** dove cambiare la condizione. Di default:
+Nel blocco **MODIFICA QUI** puoi cambiare il criterio. Di default:
 ```js
 const target = Number.isFinite(opts.prioritaDefault) ? opts.prioritaDefault : 3
 return Number(chiamata.PRIORITA) === target
@@ -101,10 +100,17 @@ L’endpoint `/api/update_chiamate` accetta **massimo 1 richiesta al secondo** g
 { "error": "Troppe richieste. Attendere prima di riprovare.", "retryAfterMs": 500 }
 ```
 
+## Comportamento frontend (importante)
+- Il fetch dati dal DB avviene solo su:
+  - caricamento iniziale pagina
+  - refresh automatico
+  - click su **Aggiorna ora**
+- Filtri e ordinamento in UI sono applicati **client-side** sulla copia dati già caricata (nessuna chiamata backend quando cambi filtro/ordinamento).
+
 ## Note tecniche
-- Date gestite in formato `dd/mm/yyyy` lato backend (e input utente lato frontend).
+- Date gestite in formato `dd/mm/yyyy` lato backend (input UI data in formato date picker).
 - Campo numero chiamata: viene usato `NUMERO_CHIAMATA` con fallback su `CHIAMATA`.
-- Coordinate: link a Google Maps nel formato `https://www.google.com/maps?q=<lat>,<lon>` (assumendo `Y=lat` e `X=lon`).
+- Coordinate: link Google Maps nel formato `https://www.google.com/maps?q=<lat>,<lon>` (assumendo `Y=lat` e `X=lon`).
 
 ## Struttura progetto
 ```
