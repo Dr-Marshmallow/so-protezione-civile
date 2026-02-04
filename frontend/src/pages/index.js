@@ -49,6 +49,10 @@ export default function Home() {
       const data = await fetchChiamate(requestParams)
       setItems(data.items || [])
       setLastUpdated(new Date().toLocaleString('it-IT'))
+
+      const filterData = await fetchFilters()
+      setComuniOptions(filterData.comuni || [])
+      setDescrizioniOptions(filterData.descrizioni || [])
     } catch (err) {
       setError(err.message || 'Errore durante il caricamento')
     } finally {
@@ -60,23 +64,6 @@ export default function Home() {
   useEffect(() => {
     loadData()
   }, [loadData])
-
-  useEffect(() => {
-    let active = true
-    fetchFilters()
-      .then((data) => {
-        if (!active) return
-        setComuniOptions(data.comuni || [])
-        setDescrizioniOptions(data.descrizioni || [])
-      })
-      .catch((err) => {
-        if (!active) return
-        setError(err.message || 'Errore durante il caricamento dei filtri')
-      })
-    return () => {
-      active = false
-    }
-  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
