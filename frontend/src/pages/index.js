@@ -3,7 +3,8 @@ import Filters from '../components/Filters'
 import InterventiTable from '../components/InterventiTable'
 import { fetchChiamate } from '../lib/api'
 
-const REFRESH_MS = 180000
+const REFRESH_MS = Number(process.env.NEXT_PUBLIC_REFRESH_MS || 180000)
+const REFRESH_INTERVAL_MS = Number.isFinite(REFRESH_MS) && REFRESH_MS > 0 ? REFRESH_MS : 180000
 
 function dmyToIso(value) {
   if (!value) return ''
@@ -32,7 +33,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [lastUpdated, setLastUpdated] = useState('')
-  const [nextRefreshMs, setNextRefreshMs] = useState(REFRESH_MS)
+  const [nextRefreshMs, setNextRefreshMs] = useState(REFRESH_INTERVAL_MS)
 
   const loadData = useCallback(async () => {
     setLoading(true)
@@ -45,7 +46,7 @@ export default function Home() {
       setError(err.message || 'Errore durante il caricamento')
     } finally {
       setLoading(false)
-      setNextRefreshMs(REFRESH_MS)
+      setNextRefreshMs(REFRESH_INTERVAL_MS)
     }
   }, [])
 
@@ -56,7 +57,7 @@ export default function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       loadData()
-    }, REFRESH_MS)
+    }, REFRESH_INTERVAL_MS)
     return () => clearInterval(interval)
   }, [loadData])
 
@@ -135,7 +136,7 @@ export default function Home() {
     setSortDir('asc')
   }
 
-  const progress = Math.min(100, Math.max(0, ((REFRESH_MS - nextRefreshMs) / REFRESH_MS) * 100))
+  const progress = Math.min(100, Math.max(0, ((REFRESH_INTERVAL_MS - nextRefreshMs) / REFRESH_INTERVAL_MS) * 100))
   const nextSeconds = Math.ceil(nextRefreshMs / 1000)
 
   return (
