@@ -22,7 +22,7 @@ Configura `.env` con:
 - `DB_USER`
 - `DB_PASSWORD`
 - `DB_CONNECT_STRING` (es. `host:port/service`)
-- `PRIORITA_DEFAULT` (default 3)
+- `PRIORITA_DEFAULT` (default 2)
 - `DB_LIB_DIR` (opzionale, path Instant Client per modalità thick)
 
 ### 2) Frontend
@@ -68,7 +68,7 @@ Query params supportati dal backend:
 
 Esempi:
 ```bash
-# base (con condizione predefinita PRIORITA=3)
+# base (con condizione predefinita PRIORITA=2)
 curl "http://localhost:4000/api/update_chiamate"
 
 # filtro date e comune
@@ -82,13 +82,13 @@ curl "http://localhost:4000/api/update_chiamate?sortField=descrizione&sortDir=as
 
 Restituisce i valori univoci per `comuni` e `descrizioni`.
 
-## Modifica della condizione (PRIORITA=3)
+## Modifica della condizione (PRIORITA=2)
 La logica di inoltro è centralizzata in:
 - `backend/src/utils/criterioInoltroProtezioneCivile.js`
 
 Nel blocco **MODIFICA QUI** puoi cambiare il criterio. Di default:
 ```js
-const target = Number.isFinite(opts.prioritaDefault) ? opts.prioritaDefault : 3
+const target = Number.isFinite(opts.prioritaDefault) ? opts.prioritaDefault : 2
 return Number(chiamata.PRIORITA) === target
 ```
 

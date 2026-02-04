@@ -24,7 +24,7 @@ const config = {
     poolTimeout: Number(process.env.DB_POOL_TIMEOUT || 60),
     statementTimeoutMs: Number(process.env.DB_STATEMENT_TIMEOUT_MS || 8000)
   },
-  prioritaDefault: Number(process.env.PRIORITA_DEFAULT || 3)
+  prioritaDefault: Number(process.env.PRIORITA_DEFAULT || 2)
 }
 
 module.exports = config

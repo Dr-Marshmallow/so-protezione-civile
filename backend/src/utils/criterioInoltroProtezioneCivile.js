@@ -8,9 +8,9 @@
 function criterio_inoltro_protezione_civile(chiamata, opts = {}) {
   // =========================
   // MODIFICA QUI LA CONDIZIONE
-  // Default: PRIORITA === 3
+  // Default: PRIORITA === 2
   // =========================
-  const target = Number.isFinite(opts.prioritaDefault) ? opts.prioritaDefault : 3
+  const target = Number.isFinite(opts.prioritaDefault) ? opts.prioritaDefault : 2
   return Number(chiamata.PRIORITA) === target
 }
 
