@@ -1,9 +1,23 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Filters from '../components/Filters'
 import InterventiTable from '../components/InterventiTable'
-import { fetchChiamate, fetchFilters } from '../lib/api'
+import { fetchChiamate } from '../lib/api'
 
 const REFRESH_MS = 180000
+
+function dmyToIso(value) {
+  if (!value) return ''
+  const [dd, mm, yyyy] = value.split('/')
+  if (!dd || !mm || !yyyy) return ''
+  return `${yyyy}-${mm}-${dd}`
+}
+
+function toTimestamp(dateDmy, timeValue) {
+  const isoDate = dmyToIso(dateDmy)
+  if (!isoDate) return 0
+  const hhmm = timeValue && /^\d{2}:\d{2}$/.test(timeValue) ? timeValue : '00:00'
+  return new Date(`${isoDate}T${hhmm}:00`).getTime()
+}
 
 export default function Home() {
   const [startDate, setStartDate] = useState('')
@@ -15,51 +29,25 @@ export default function Home() {
   const [sortDir, setSortDir] = useState('desc')
 
   const [items, setItems] = useState([])
-  const [comuniOptions, setComuniOptions] = useState([])
-  const [descrizioniOptions, setDescrizioniOptions] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [lastUpdated, setLastUpdated] = useState('')
   const [nextRefreshMs, setNextRefreshMs] = useState(REFRESH_MS)
 
-  const toDMY = (value) => {
-    if (!value) return ''
-    const [yyyy, mm, dd] = value.split('-')
-    if (!yyyy || !mm || !dd) return ''
-    return `${dd}/${mm}/${yyyy}`
-  }
-
-  const requestParams = useMemo(() => {
-    const params = {}
-    const startDMY = toDMY(startDate)
-    const endDMY = toDMY(endDate)
-    if (startDMY) params.startDate = startDMY
-    if (endDMY) params.endDate = endDMY
-    if (comune) params.comune = comune
-    if (descrizione) params.descrizione = descrizione
-    if (sortField) params.sortField = sortField
-    if (sortDir) params.sortDir = sortDir
-    return params
-  }, [startDate, endDate, comune, descrizione, sortField, sortDir])
-
   const loadData = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
-      const data = await fetchChiamate(requestParams)
+      const data = await fetchChiamate({})
       setItems(data.items || [])
       setLastUpdated(new Date().toLocaleString('it-IT'))
-
-      const filterData = await fetchFilters()
-      setComuniOptions(filterData.comuni || [])
-      setDescrizioniOptions(filterData.descrizioni || [])
     } catch (err) {
       setError(err.message || 'Errore durante il caricamento')
     } finally {
       setLoading(false)
       setNextRefreshMs(REFRESH_MS)
     }
-  }, [requestParams])
+  }, [])
 
   useEffect(() => {
     loadData()
@@ -78,6 +66,51 @@ export default function Home() {
     }, 1000)
     return () => clearInterval(tick)
   }, [])
+
+  const comuniOptions = useMemo(() => {
+    return [...new Set(items.map((item) => item.COMUNE).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, 'it', { sensitivity: 'base' })
+    )
+  }, [items])
+
+  const descrizioniOptions = useMemo(() => {
+    return [...new Set(items.map((item) => item.DESCRIZIONE).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b, 'it', { sensitivity: 'base' })
+    )
+  }, [items])
+
+  const visibleItems = useMemo(() => {
+    const filtered = items.filter((item) => {
+      const itemDateIso = dmyToIso(item.DATA_CHIAMATA)
+
+      if (startDate && itemDateIso && itemDateIso < startDate) return false
+      if (endDate && itemDateIso && itemDateIso > endDate) return false
+      if (comune && item.COMUNE !== comune) return false
+      if (descrizione && item.DESCRIZIONE !== descrizione) return false
+
+      return true
+    })
+
+    const sorted = [...filtered].sort((a, b) => {
+      let result = 0
+
+      if (sortField === 'data_ora') {
+        result = toTimestamp(a.DATA_CHIAMATA, a.ORA_CHIAMATA) - toTimestamp(b.DATA_CHIAMATA, b.ORA_CHIAMATA)
+      } else if (sortField === 'numero_chiamata') {
+        result = Number(a.NUMERO_CHIAMATA || 0) - Number(b.NUMERO_CHIAMATA || 0)
+      } else if (sortField === 'comune') {
+        result = (a.COMUNE || '').localeCompare(b.COMUNE || '', 'it', { sensitivity: 'base' })
+      } else if (sortField === 'descrizione') {
+        result = (a.DESCRIZIONE || '').localeCompare(b.DESCRIZIONE || '', 'it', {
+          sensitivity: 'base'
+        })
+      }
+
+      return sortDir === 'asc' ? result : -result
+    })
+
+    return sorted
+  }, [items, startDate, endDate, comune, descrizione, sortField, sortDir])
 
   const handleFilterChange = (field, value) => {
     if (field === 'startDate') setStartDate(value)
@@ -114,9 +147,7 @@ export default function Home() {
       </header>
 
       <div className="top-action">
-        <div className="last-updated">
-          Ultimo aggiornamento: {lastUpdated || '-'}
-        </div>
+        <div className="last-updated">Ultimo aggiornamento: {lastUpdated || '-'}</div>
         <div className="progress" aria-hidden="true">
           <div className="progress-bar" style={{ width: `${progress}%` }} />
         </div>
@@ -144,11 +175,11 @@ export default function Home() {
       <section className="panel">
         {loading ? (
           <div className="loading">Caricamento in corso...</div>
-        ) : items.length === 0 ? (
+        ) : visibleItems.length === 0 ? (
           <div className="empty">Nessun intervento trovato</div>
         ) : (
           <InterventiTable
-            items={items}
+            items={visibleItems}
             sortField={sortField}
             sortDir={sortDir}
             onSort={handleSort}
