@@ -45,6 +45,8 @@ function toResponseItem(row) {
     ORA_CHIAMATA: row.ORA_CHIAMATA || null,
     NUMERO_CHIAMATA: numero,
     COMUNE: row.COMUNE || null,
+    RICHIEDENTE: row.RICHIEDENTE || null,
+    TELE_NUMERO: row.TELE_NUMERO || null,
     DESCRIZIONE: row.DESCRIZIONE || null,
     NOTE_INTERVENTO: row.NOTE_INTERVENTO || null,
     DESC_LUOGO: row.DESC_LUOGO || null,
@@ -60,7 +62,6 @@ async function getChiamate(req, res, next) {
 
     const rows = await fetchChiamate(filters, sort)
     const items = rows.map(toResponseItem)
-
     res.json({
       items,
       meta: {
