@@ -1,5 +1,6 @@
 const { fetchChiamate, fetchFilterOptions } = require('../services/chiamateService')
 const { formatDateDMY, isValidDMY } = require('../utils/date')
+const { formatVia } = require('../utils/formatter')
 
 function parseFilters(query) {
   const filters = {}
@@ -49,7 +50,7 @@ function toResponseItem(row) {
     TELE_NUMERO: row.TELE_NUMERO || null,
     DESCRIZIONE: row.DESCRIZIONE || null,
     NOTE_INTERVENTO: row.NOTE_INTERVENTO || null,
-    DESC_LUOGO: row.DESC_LUOGO || null,
+    DESC_LUOGO: formatVia(row.DESC_LUOGO),
     X: row.X ?? null,
     Y: row.Y ?? null
   }
