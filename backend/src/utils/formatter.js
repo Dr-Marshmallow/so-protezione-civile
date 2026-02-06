@@ -1,10 +1,10 @@
-function formatVia(via) {
-  if (!via) return null;
+function formatIndirizzo(indirizzo) {
+  if (!indirizzo) return null;
 
   // rimuove SOLO l'underscore iniziale
-  return via.startsWith('_') ? via.slice(1) : via;
+  return indirizzo.startsWith('_') ? indirizzo.slice(1) : indirizzo;
 }
 
 module.exports = {
-  formatVia,
+  formatIndirizzo,
 };
