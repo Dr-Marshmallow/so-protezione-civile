@@ -1,17 +1,17 @@
 const { ObjectId } = require('mongodb')
 const { getCollection } = require('../db/mongo')
-const { formatDateDMY } = require('../utils/date')
+const { formatDateDMY, formatDateTimeDMY } = require('../utils/date')
 
 const STATI = ['in attesa', 'in carico', 'concluso', 'non più necessario']
 const STATI_ATTIVE = ['in attesa', 'in carico']
 const STATI_ARCHIVIO = ['concluso', 'non più necessario']
 
 function buildUniqueKey(row) {
-  const numero = row.NUMERO_CHIAMATA || row.CHIAMATA || ""
-  const data = formatDateDMY(row.DATA_CHIAMATA) || ""
-  const ora = row.ORA_CHIAMATA || ""
-  const comune = row.COMUNE || ""
-  return [numero, data, ora, comune].join("-")
+  const numero = row.NUMERO_CHIAMATA || row.CHIAMATA || ''
+  const data = formatDateDMY(row.DATA_CHIAMATA) || ''
+  const ora = row.ORA_CHIAMATA || ''
+  const comune = row.COMUNE || ''
+  return [numero, data, ora, comune].join('-')
 }
 
 function mapOracleRow(row) {
@@ -73,9 +73,9 @@ function mapMongoDoc(doc) {
     X: doc.X ?? null,
     Y: doc.Y ?? null,
     stato: doc.stato,
-    presaInCaricoAt: formatDateDMY(doc.presaInCaricoAt),
-    conclusaAt: formatDateDMY(doc.conclusaAt),
-    nonPiuNecessarioAt: formatDateDMY(doc.nonPiuNecessarioAt)
+    presaInCaricoAt: formatDateTimeDMY(doc.presaInCaricoAt),
+    conclusaAt: formatDateTimeDMY(doc.conclusaAt),
+    nonPiuNecessarioAt: formatDateTimeDMY(doc.nonPiuNecessarioAt)
   }
 }
 

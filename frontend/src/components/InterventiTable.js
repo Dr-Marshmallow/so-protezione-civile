@@ -21,6 +21,7 @@ export default function InterventiTable({
   sortDir,
   onSort,
   showStato = false,
+  showArchivioDates = false,
   onChangeStato
 }) {
   const [expanded, setExpanded] = useState(new Set())
@@ -137,6 +138,23 @@ export default function InterventiTable({
                             '-'
                           )}
                         </div>
+                        {showArchivioDates && (
+                          <>
+                            <div>
+                              <strong>Data presa in carico:</strong> {item.presaInCaricoAt || '-'}
+                            </div>
+                            {item.conclusaAt ? (
+                              <div>
+                                <strong>Data conclusa:</strong> {item.conclusaAt}
+                              </div>
+                            ) : null}
+                            {item.nonPiuNecessarioAt ? (
+                              <div>
+                                <strong>Data non più necessaria:</strong> {item.nonPiuNecessarioAt}
+                              </div>
+                            ) : null}
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

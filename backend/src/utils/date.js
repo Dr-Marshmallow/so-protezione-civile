@@ -8,6 +8,18 @@ function formatDateDMY(date) {
   return `${dd}/${mm}/${yyyy}`
 }
 
+function formatDateTimeDMY(date) {
+  if (!date) return null
+  const d = new Date(date)
+  if (Number.isNaN(d.getTime())) return null
+  const dd = String(d.getDate()).padStart(2, '0')
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const yyyy = d.getFullYear()
+  const hh = String(d.getHours()).padStart(2, '0')
+  const min = String(d.getMinutes()).padStart(2, '0')
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`
+}
+
 function isValidDMY(value) {
   if (!value || typeof value !== 'string') return false
   const match = value.match(/^([0-2]\d|3[0-1])\/(0\d|1[0-2])\/(\d{4})$/)
@@ -37,6 +49,7 @@ function getDateRangeFromDMY(dateFrom, dateTo) {
 
 module.exports = {
   formatDateDMY,
+  formatDateTimeDMY,
   isValidDMY,
   parseDMYToDate,
   getDateRangeFromDMY
