@@ -83,7 +83,7 @@ export default function InterventiTable({
                 <tr className="main-row">
                   <td>
                     <span className="data-ora">
-                      {item.DATA_CHIAMATA} {item.ORA_CHIAMATA || ''}
+                      {item.DATA_CHIAMATA} - {item.ORA_CHIAMATA || ''}
                     </span>
                   </td>
                   <td>{item.NUMERO_CHIAMATA}</td>
