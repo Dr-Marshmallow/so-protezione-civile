@@ -347,6 +347,7 @@ export default function Home() {
                 onSort={handleSort}
                 showStato
                 onChangeStato={openModal}
+                showAttivePresaInCarico
               />
             )}
           </section>

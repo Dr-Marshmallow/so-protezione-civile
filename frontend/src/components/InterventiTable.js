@@ -22,6 +22,7 @@ export default function InterventiTable({
   onSort,
   showStato = false,
   showArchivioDates = false,
+  showAttivePresaInCarico = false,
   onChangeStato
 }) {
   const [expanded, setExpanded] = useState(new Set())
@@ -138,6 +139,11 @@ export default function InterventiTable({
                             '-'
                           )}
                         </div>
+                        {showAttivePresaInCarico && item.stato === 'in carico' && (
+                          <div>
+                            <strong>Data presa in carico:</strong> {item.presaInCaricoAt || '-'}
+                          </div>
+                        )}
                         {showArchivioDates && (
                           <>
                             <div>
