@@ -216,11 +216,21 @@ export default function Home() {
     setArchivioError('')
 
     try {
+      if (archivioMode === 'dataChiamata') {
+        setArchivioStati(STATI_ARCHIVIO)
+      }
       const params = {
         dateFrom: toDMYFromInput(archivioFrom),
         dateTo: toDMYFromInput(archivioTo),
-        dateFieldMode: archivioMode,
-        stati: archivioMode === 'dataStatoFinale' ? archivioStati.join(',') : undefined
+        dateFieldMode: archivioMode
+      }
+      if (archivioMode === 'dataStatoFinale') {
+        if (archivioStati.length === 0) {
+          setArchivioError('Seleziona almeno uno stato finale.')
+          setArchivioLoading(false)
+          return
+        }
+        params.stati = archivioStati.join(',')
       }
       const data = await fetchArchivio(params)
       setArchivioItems(data.items || [])
