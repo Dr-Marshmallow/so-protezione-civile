@@ -1,6 +1,7 @@
 const { ObjectId } = require('mongodb')
 const { getCollection } = require('../db/mongo')
 const { formatDateDMY, formatDateTimeDMY } = require('../utils/date')
+const { formatIndirizzo } = require('../utils/formatter')
 
 const STATI = ['in attesa', 'in carico', 'concluso', 'non più necessario']
 const STATI_ATTIVE = ['in attesa', 'in carico']
@@ -27,7 +28,7 @@ function mapOracleRow(row) {
     TELE_NUMERO: row.TELE_NUMERO || null,
     DESCRIZIONE: row.DESCRIZIONE || null,
     NOTE_INTERVENTO: row.NOTE_INTERVENTO || null,
-    DESC_LUOGO: row.DESC_LUOGO || null,
+    DESC_LUOGO: formatIndirizzo(row.DESC_LUOGO),
     X: row.X ?? null,
     Y: row.Y ?? null,
     dataChiamata: row.DATA_CHIAMATA ? new Date(row.DATA_CHIAMATA) : null,
@@ -69,7 +70,7 @@ function mapMongoDoc(doc) {
     TELE_NUMERO: doc.TELE_NUMERO || null,
     DESCRIZIONE: doc.DESCRIZIONE || null,
     NOTE_INTERVENTO: doc.NOTE_INTERVENTO || null,
-    DESC_LUOGO: doc.DESC_LUOGO || null,
+    DESC_LUOGO: formatIndirizzo(doc.DESC_LUOGO),
     X: doc.X ?? null,
     Y: doc.Y ?? null,
     stato: doc.stato,
