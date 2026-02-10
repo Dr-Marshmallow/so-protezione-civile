@@ -415,6 +415,24 @@ th {
   flex-wrap: wrap;
 }
 
+.status-checkboxes label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-checkboxes input {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+
 .archive-actions {
   display: flex;
   gap: 12px;

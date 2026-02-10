@@ -197,7 +197,7 @@ export default function Home() {
 
       closeModal()
     } catch (err) {
-      setError(err.message || "Errore durante aggiornamento stato")
+      setError(err.message || 'Errore durante aggiornamento stato')
     }
   }
 
@@ -220,7 +220,7 @@ export default function Home() {
         dateFrom: toDMYFromInput(archivioFrom),
         dateTo: toDMYFromInput(archivioTo),
         dateFieldMode: archivioMode,
-        stati: archivioStati.join(',')
+        stati: archivioMode === 'dataStatoFinale' ? archivioStati.join(',') : undefined
       }
       const data = await fetchArchivio(params)
       setArchivioItems(data.items || [])
@@ -378,24 +378,26 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="status-checkboxes">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={archivioStati.includes('concluso')}
-                  onChange={() => toggleArchivioStato('concluso')}
-                />
-                Concluso
-              </label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={archivioStati.includes('non più necessario')}
-                  onChange={() => toggleArchivioStato('non più necessario')}
-                />
-                Non più necessario
-              </label>
-            </div>
+            {archivioMode === 'dataStatoFinale' && (
+              <div className="status-checkboxes">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={archivioStati.includes('concluso')}
+                    onChange={() => toggleArchivioStato('concluso')}
+                  />
+                  Concluso
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={archivioStati.includes('non più necessario')}
+                    onChange={() => toggleArchivioStato('non più necessario')}
+                  />
+                  Non più necessario
+                </label>
+              </div>
+            )}
 
             <div className="archive-actions">
               <button className="primary" onClick={handleArchivioSearch} disabled={archivioLoading}>
