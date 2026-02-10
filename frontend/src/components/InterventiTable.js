@@ -1,6 +1,6 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 
-const HEADERS = [
+const BASE_HEADERS = [
   { key: 'data_ora', label: 'Data e ora' },
   { key: 'numero_chiamata', label: 'Numero chiamata' },
   { key: 'comune', label: 'Comune' },
@@ -8,11 +8,28 @@ const HEADERS = [
 ]
 
 function buildRowKey(item) {
-  return `${item.NUMERO_CHIAMATA}-${item.DATA_CHIAMATA}-${item.ORA_CHIAMATA}`
+  return item.id || `${item.NUMERO_CHIAMATA}-${item.DATA_CHIAMATA}-${item.ORA_CHIAMATA}`
 }
 
-export default function InterventiTable({ items, sortField, sortDir, onSort }) {
+function statoClass(stato) {
+  return (stato || '').toLowerCase().replace(/\s+/g, '-')
+}
+
+export default function InterventiTable({
+  items,
+  sortField,
+  sortDir,
+  onSort,
+  showStato = false,
+  onChangeStato
+}) {
   const [expanded, setExpanded] = useState(new Set())
+
+  const headers = useMemo(() => {
+    const base = [...BASE_HEADERS]
+    if (showStato) base.push({ key: 'stato', label: 'Stato' })
+    return base
+  }, [showStato])
 
   const toggleRow = (key) => {
     const next = new Set(expanded)
@@ -26,12 +43,14 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
     return sortDir === 'asc' ? '^' : 'v'
   }
 
+  const colSpan = BASE_HEADERS.length + (showStato ? 1 : 0) + (onChangeStato ? 1 : 0) + 1
+
   return (
     <div className="table-wrapper" role="region" aria-label="Interventi">
       <table>
         <thead>
           <tr>
-            {HEADERS.map((header) => (
+            {headers.map((header) => (
               <th key={header.key}>
                 <button
                   type="button"
@@ -44,6 +63,7 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
                 </button>
               </th>
             ))}
+            {onChangeStato && <th className="action-header">Azioni</th>}
             <th className="expand-header" aria-hidden="true" />
           </tr>
         </thead>
@@ -61,12 +81,30 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
                 <tr className="main-row">
                   <td>
                     <span className="data-ora">
-                      {item.DATA_CHIAMATA} - {item.ORA_CHIAMATA || ''}
+                      {item.DATA_CHIAMATA} {item.ORA_CHIAMATA || ''}
                     </span>
                   </td>
                   <td>{item.NUMERO_CHIAMATA}</td>
                   <td>{item.COMUNE}</td>
                   <td>{item.DESCRIZIONE}</td>
+                  {showStato && (
+                    <td>
+                      <span className={`stato-pill stato-${statoClass(item.stato)}`}>
+                        {item.stato}
+                      </span>
+                    </td>
+                  )}
+                  {onChangeStato && (
+                    <td>
+                      <button
+                        type="button"
+                        className="secondary small"
+                        onClick={() => onChangeStato(item)}
+                      >
+                        Cambia stato
+                      </button>
+                    </td>
+                  )}
                   <td className="expand-cell">
                     <button
                       type="button"
@@ -81,14 +119,8 @@ export default function InterventiTable({ items, sortField, sortDir, onSort }) {
                 </tr>
                 {isExpanded && (
                   <tr className="expanded-row">
-                    <td colSpan={5}>
+                    <td colSpan={colSpan}>
                       <div className="expanded-content">
-                        <div>
-                          <strong>Richiedente:</strong> {item.RICHIEDENTE || '-'}
-                        </div>
-                        <div>
-                          <strong>Telefono:</strong> {item.TELE_NUMERO || '-'}
-                        </div>
                         <div>
                           <strong>Note:</strong> {item.NOTE_INTERVENTO || '-'}
                         </div>

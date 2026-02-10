@@ -315,3 +315,114 @@ th {
     width: 100%;
   }
 }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 10px 0 30px;
+}
+
+.tab-button {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.action-header {
+  text-align: left;
+}
+
+.secondary.small {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+
+.stato-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1313;
+}
+
+.stato-in-attesa {
+  background: #f8c9ce;
+}
+
+.stato-in-carico {
+  background: #ffe08a;
+}
+
+.stato-concluso,
+.stato-non-più-necessario,
+.stato-non-piu-necessario {
+  background: #ded9d9;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  width: min(420px, 92vw);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.modal h3 {
+  margin: 0 0 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.archive-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.status-checkboxes {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.archive-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.helper-text {
+  font-size: 0.85rem;
+  color: var(--muted);
+}

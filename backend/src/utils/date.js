@@ -21,7 +21,23 @@ function isValidDMY(value) {
   )
 }
 
+function parseDMYToDate(value) {
+  if (!isValidDMY(value)) return null
+  const [dd, mm, yyyy] = value.split('/')
+  return new Date(Number(yyyy), Number(mm) - 1, Number(dd), 0, 0, 0, 0)
+}
+
+function getDateRangeFromDMY(dateFrom, dateTo) {
+  const start = parseDMYToDate(dateFrom)
+  const end = parseDMYToDate(dateTo)
+  if (!start || !end) return null
+  end.setHours(23, 59, 59, 999)
+  return { start, end }
+}
+
 module.exports = {
   formatDateDMY,
-  isValidDMY
+  isValidDMY,
+  parseDMYToDate,
+  getDateRangeFromDMY
 }

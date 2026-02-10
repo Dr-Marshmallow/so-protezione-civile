@@ -1,10 +1,11 @@
 # SO Protezione Civile
 
-Web app semplice e robusta per visualizzare gli interventi inoltrati dai vigili del fuoco alla protezione civile. Il backend interroga Oracle e il frontend mostra una tabella filtrabile, ordinabile e con aggiornamento automatico a intervallo configurabile.
+Web app per visualizzare e gestire gli interventi inoltrati dai vigili del fuoco alla protezione civile. Oracle resta la fonte primaria, MongoDB mantiene lo stato operativo e l’archivio. Il frontend include tab Attive/Archivio con cambio stato.
 
 ## Prerequisiti
 - Node.js 18+ (consigliato 20+)
 - Oracle Client (Instant Client) **necessario** se il tuo server Oracle non è supportato dalla modalità Thin
+- MongoDB (istanza raggiungibile dal backend)
 
 > Nota: se ricevi l’errore `NJS-138`, abilita la modalità thick impostando `DB_LIB_DIR` con il path dell’Instant Client.
 
@@ -24,6 +25,11 @@ Configura `.env` con:
 - `DB_CONNECT_STRING` (es. `host:port/service`)
 - `PRIORITA_DEFAULT` (default 2)
 - `DB_LIB_DIR` (opzionale, path Instant Client per modalità thick)
+
+MongoDB:
+- `MONGO_URI`
+- `MONGO_DB_NAME`
+- `MONGO_COLLECTION_CHIAMATE`
 
 ### 2) Frontend
 ```bash
@@ -54,33 +60,52 @@ npm run build
 npm start
 ```
 
+## Flusso dati
+- `GET /api/update_chiamate` continua a leggere Oracle (timer 3 min o “Aggiorna ora”).
+- Le nuove chiamate vengono inserite in Mongo con `stato = "in attesa"`.
+- Le chiamate attive e archivio vengono lette da Mongo.
+- Lo stato si aggiorna **solo** su Mongo (Oracle non viene modificato).
+
 ## Endpoint
 
-`GET /api/update_chiamate`
+### `GET /api/update_chiamate`
+- Fetch Oracle + sync verso Mongo (solo nuove).
 
-Query params supportati dal backend:
-- `startDate` (dd/mm/yyyy)
-- `endDate` (dd/mm/yyyy)
-- `comune`
-- `descrizione`
-- `sortField` (`data_ora`, `numero_chiamata`, `comune`, `descrizione`)
-- `sortDir` (`asc`, `desc`)
+### `GET /api/attive`
+- Restituisce chiamate con `stato` in: `in attesa`, `in carico`.
 
-Esempi:
-```bash
-# base (con condizione predefinita PRIORITA=2)
-curl "http://localhost:4000/api/update_chiamate"
-
-# filtro date e comune
-curl "http://localhost:4000/api/update_chiamate?startDate=01/01/2024&endDate=31/01/2024&comune=Roma"
-
-# ordinamento per descrizione
-curl "http://localhost:4000/api/update_chiamate?sortField=descrizione&sortDir=asc"
+### `PATCH /api/chiamate/stato`
+Body:
+```json
+{ "id": "<uniqueKey>", "stato": "in carico" }
 ```
+Regole:
+- `in carico` → `presaInCaricoAt = now`
+- `concluso` → `conclusaAt = now`
+- `non più necessario` → `nonPiuNecessarioAt = now`
+- Se lo stato torna indietro, i timestamp successivi vengono rimossi.
 
-`GET /api/filters`
+### `GET /api/archivio`
+Query obbligatori:
+- `dateFrom` (dd/mm/yyyy)
+- `dateTo` (dd/mm/yyyy)
+- `dateFieldMode`: `dataChiamata` | `dataStatoFinale`
 
-Restituisce i valori univoci per `comuni` e `descrizioni`.
+Query opzionali:
+- `stati` (lista separata da virgola: `concluso,non più necessario`)
+
+### `GET /api/filters`
+Valori univoci per `comuni` e `descrizioni`.
+
+## Stato e archivio
+- **Tab Attive**: `in attesa`, `in carico` con pulsante “Cambia stato”.
+- **Tab Archivio**: ricerca per date (obbligatoria) su `dataChiamata` o `dataStatoFinale`. Possibile cambiare stato anche da qui.
+
+## Identificatore univoco
+Il `numero chiamata` è progressivo giornaliero, quindi **non è univoco**. L’identificatore usato in Mongo è:
+```
+<NUMERO_CHIAMATA>-<DATA_CHIAMATA>-<ORA_CHIAMATA>-<COMUNE>
+```
 
 ## Modifica della condizione (PRIORITA=2)
 La logica di inoltro è centralizzata in:
@@ -92,24 +117,11 @@ const target = Number.isFinite(opts.prioritaDefault) ? opts.prioritaDefault : 2
 return Number(chiamata.PRIORITA) === target
 ```
 
-> L’endpoint applica anche una condizione SQL equivalente per efficienza. Se cambi la logica, aggiorna anche il filtro SQL in `backend/src/services/chiamateService.js` oppure modifica `PRIORITA_DEFAULT` nel `.env`.
-
 ## Rate limiting
-L’endpoint `/api/update_chiamate` accetta **massimo 1 richiesta al secondo** globalmente. Se superato risponde `429` con:
-```json
-{ "error": "Troppe richieste. Attendere prima di riprovare.", "retryAfterMs": 500 }
-```
-
-## Comportamento frontend (importante)
-- Il fetch dati dal DB avviene solo su:
-  - caricamento iniziale pagina
-  - refresh automatico
-  - click su **Aggiorna ora**
-- Filtri e ordinamento in UI sono applicati **client-side** sulla copia dati già caricata (nessuna chiamata backend quando cambi filtro/ordinamento).
+`/api/update_chiamate`: massimo **1 richiesta al secondo** globalmente.
 
 ## Note tecniche
-- Date gestite in formato `dd/mm/yyyy` lato backend (input UI data in formato date picker).
-- Campo numero chiamata: viene usato `NUMERO_CHIAMATA` con fallback su `CHIAMATA`.
+- Date gestite in formato `dd/mm/yyyy` lato backend.
 - Coordinate: link Google Maps nel formato `https://www.google.com/maps?q=<lat>,<lon>` (assumendo `Y=lat` e `X=lon`).
 
 ## Struttura progetto

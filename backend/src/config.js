@@ -2,7 +2,14 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
-const required = ['DB_USER', 'DB_PASSWORD', 'DB_CONNECT_STRING']
+const required = [
+  'DB_USER',
+  'DB_PASSWORD',
+  'DB_CONNECT_STRING',
+  'MONGO_URI',
+  'MONGO_DB_NAME',
+  'MONGO_COLLECTION_CHIAMATE'
+]
 const missing = required.filter((key) => !process.env[key])
 
 if (missing.length) {
@@ -23,6 +30,11 @@ const config = {
     poolIncrement: Number(process.env.DB_POOL_INCREMENT || 1),
     poolTimeout: Number(process.env.DB_POOL_TIMEOUT || 60),
     statementTimeoutMs: Number(process.env.DB_STATEMENT_TIMEOUT_MS || 8000)
+  },
+  mongo: {
+    uri: process.env.MONGO_URI,
+    dbName: process.env.MONGO_DB_NAME,
+    collectionChiamate: process.env.MONGO_COLLECTION_CHIAMATE
   },
   prioritaDefault: Number(process.env.PRIORITA_DEFAULT || 2)
 }

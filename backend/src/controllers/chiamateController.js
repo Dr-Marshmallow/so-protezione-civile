@@ -1,5 +1,12 @@
 const { fetchChiamate, fetchFilterOptions } = require('../services/chiamateService')
-const { formatDateDMY, isValidDMY } = require('../utils/date')
+const {
+  syncChiamateToMongo,
+  getAttive,
+  updateStato,
+  getArchivio,
+  STATI_ARCHIVIO
+} = require('../services/chiamateMongoService')
+const { formatDateDMY, isValidDMY, getDateRangeFromDMY } = require('../utils/date')
 const { formatIndirizzo } = require('../utils/formatter')
 
 function parseFilters(query) {
@@ -62,7 +69,112 @@ async function getChiamate(req, res, next) {
     const sort = parseSort(req.query)
 
     const rows = await fetchChiamate(filters, sort)
+    await syncChiamateToMongo(rows)
+
     const items = rows.map(toResponseItem)
+    res.json({
+      items,
+      meta: {
+        count: items.length,
+        generatedAt: new Date().toISOString()
+      }
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function getChiamateAttive(req, res, next) {
+  try {
+    const items = await getAttive()
+    res.json({
+      items,
+      meta: {
+        count: items.length,
+        generatedAt: new Date().toISOString()
+      }
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function updateChiamataStato(req, res, next) {
+  try {
+    const { id, stato } = req.body || {}
+    if (!id || !stato) {
+      const err = new Error('Parametri mancanti: id e stato sono obbligatori.')
+      err.status = 400
+      err.expose = true
+      throw err
+    }
+
+    const updated = await updateStato(String(id), String(stato))
+    res.json({ item: updated })
+  } catch (err) {
+    next(err)
+  }
+}
+
+function parseArchivioQuery(query) {
+  const dateFrom = query.dateFrom
+  const dateTo = query.dateTo
+  const dateFieldMode = String(query.dateFieldMode || '')
+
+  if (!dateFrom || !dateTo) {
+    const err = new Error('dateFrom e dateTo sono obbligatori.')
+    err.status = 400
+    err.expose = true
+    throw err
+  }
+
+  if (!isValidDMY(dateFrom) || !isValidDMY(dateTo)) {
+    const err = new Error('Formato data non valido. Usa dd/mm/yyyy.')
+    err.status = 400
+    err.expose = true
+    throw err
+  }
+
+  if (!['dataChiamata', 'dataStatoFinale'].includes(dateFieldMode)) {
+    const err = new Error('dateFieldMode non valido. Usa: dataChiamata, dataStatoFinale.')
+    err.status = 400
+    err.expose = true
+    throw err
+  }
+
+  const dateRange = getDateRangeFromDMY(dateFrom, dateTo)
+  if (!dateRange) {
+    const err = new Error('Intervallo date non valido.')
+    err.status = 400
+    err.expose = true
+    throw err
+  }
+
+  let stati = []
+  if (query.stati) {
+    stati = String(query.stati)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  }
+
+  if (stati.length) {
+    const invalid = stati.filter((s) => !STATI_ARCHIVIO.includes(s))
+    if (invalid.length) {
+      const err = new Error('Stati archivio non validi.')
+      err.status = 400
+      err.expose = true
+      throw err
+    }
+  }
+
+  return { dateRange, dateFieldMode, stati }
+}
+
+async function getChiamateArchivio(req, res, next) {
+  try {
+    const query = parseArchivioQuery(req.query)
+    const items = await getArchivio(query)
     res.json({
       items,
       meta: {
@@ -77,6 +189,9 @@ async function getChiamate(req, res, next) {
 
 module.exports = {
   getChiamate,
+  getChiamateAttive,
+  updateChiamataStato,
+  getChiamateArchivio,
   getFilters: async (req, res, next) => {
     try {
       const data = await fetchFilterOptions()
