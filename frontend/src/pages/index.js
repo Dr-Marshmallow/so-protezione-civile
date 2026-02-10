@@ -8,6 +8,14 @@ const REFRESH_INTERVAL_MS = Number.isFinite(REFRESH_MS) && REFRESH_MS > 0 ? REFR
 const STATI_ATTIVE = ['in attesa', 'in carico']
 const STATI_ARCHIVIO = ['concluso', 'non più necessario']
 
+function todayIso() {
+  const now = new Date()
+  const yyyy = String(now.getFullYear())
+  const mm = String(now.getMonth() + 1).padStart(2, '0')
+  const dd = String(now.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
 function toDMYFromInput(value) {
   if (!value) return ''
   const [yyyy, mm, dd] = value.split('-')
@@ -66,8 +74,8 @@ export default function Home() {
   const [descrizione, setDescrizione] = useState('')
   const [statoFiltro, setStatoFiltro] = useState('tutti')
 
-  const [archivioFrom, setArchivioFrom] = useState('')
-  const [archivioTo, setArchivioTo] = useState('')
+  const [archivioFrom, setArchivioFrom] = useState(todayIso())
+  const [archivioTo, setArchivioTo] = useState(todayIso())
   const [archivioMode, setArchivioMode] = useState('dataChiamata')
   const [archivioStati, setArchivioStati] = useState(['concluso', 'non più necessario'])
   const [archivioFiltroStato, setArchivioFiltroStato] = useState('tutti')
