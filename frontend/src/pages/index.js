@@ -419,7 +419,7 @@ export default function Home() {
             {archivioError && <div className="error-banner">{archivioError}</div>}
           </section>
 
-          {archivioSearched && (
+          {archivioSearched && archivioMode === 'dataChiamata' && (
             <section className="panel">
               <div className="filters">
                 <div className="field">
