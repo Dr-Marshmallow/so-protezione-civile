@@ -124,6 +124,12 @@ export default function InterventiTable({
                     <td colSpan={colSpan}>
                       <div className="expanded-content">
                         <div>
+                          <strong>Richiedente:</strong> {item.RICHIEDENTE || '-'}
+                        </div>
+                        <div>
+                          <strong>Telefono:</strong> {item.TELE_NUMERO || '-'}
+                        </div>
+                        <div>
                           <strong>Note:</strong> {item.NOTE_INTERVENTO || '-'}
                         </div>
                         <div>
