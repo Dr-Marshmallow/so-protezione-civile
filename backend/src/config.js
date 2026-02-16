@@ -16,6 +16,8 @@ if (missing.length) {
   throw new Error(`Missing required env vars: ${missing.join(', ')}`)
 }
 
+const backgroundSyncIntervalMs = Number(process.env.BACKGROUND_SYNC_INTERVAL_MS || 180000)
+
 const config = {
   env: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 4000),
@@ -36,7 +38,14 @@ const config = {
     dbName: process.env.MONGO_DB_NAME,
     collectionChiamate: process.env.MONGO_COLLECTION_CHIAMATE
   },
-  prioritaDefault: Number(process.env.PRIORITA_DEFAULT || 2)
+  prioritaDefault: Number(process.env.PRIORITA_DEFAULT || 2),
+  backgroundSync: {
+    enabled: String(process.env.BACKGROUND_SYNC_ENABLED || 'true').toLowerCase() !== 'false',
+    intervalMs:
+      Number.isFinite(backgroundSyncIntervalMs) && backgroundSyncIntervalMs > 0
+        ? backgroundSyncIntervalMs
+        : 180000
+  }
 }
 
 module.exports = config
