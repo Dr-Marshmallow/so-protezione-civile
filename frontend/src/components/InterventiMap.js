@@ -65,6 +65,7 @@ export default function InterventiMap({ items }) {
   const layerRef = useRef(null)
   const [mapError, setMapError] = useState('')
   const [mapReady, setMapReady] = useState(false)
+  const [isOffline, setIsOffline] = useState(false)
 
   const markers = useMemo(() => {
     return (items || [])
@@ -89,7 +90,36 @@ export default function InterventiMap({ items }) {
   }, [items])
 
   useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+
+    const updateConnectivity = () => {
+      const offline = !window.navigator.onLine
+      setIsOffline(offline)
+      if (offline) {
+        setMapError('Connessione assente: la mappa non e disponibile offline.')
+      } else {
+        setMapError('')
+      }
+    }
+
+    updateConnectivity()
+    window.addEventListener('online', updateConnectivity)
+    window.addEventListener('offline', updateConnectivity)
+
+    return () => {
+      window.removeEventListener('online', updateConnectivity)
+      window.removeEventListener('offline', updateConnectivity)
+    }
+  }, [])
+
+  useEffect(() => {
     let mounted = true
+
+    if (isOffline) {
+      return () => {
+        mounted = false
+      }
+    }
 
     loadLeaflet()
       .then((L) => {
@@ -101,10 +131,16 @@ export default function InterventiMap({ items }) {
           zoomControl: true
         })
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
           attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map)
+        })
+
+        tileLayer.on('tileerror', () => {
+          setMapError('Impossibile caricare le tiles della mappa. Controlla la connessione.')
+        })
+
+        tileLayer.addTo(map)
 
         mapRef.current = map
         setMapReady(true)
@@ -123,7 +159,7 @@ export default function InterventiMap({ items }) {
       layerRef.current = null
       setMapReady(false)
     }
-  }, [])
+  }, [isOffline])
 
   useEffect(() => {
     const map = mapRef.current
