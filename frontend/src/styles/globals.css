@@ -235,6 +235,7 @@ td {
 th {
   font-size: 0.9rem;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .sort-button {
@@ -297,6 +298,7 @@ th {
 
 .data-ora {
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .last-updated {
@@ -345,6 +347,7 @@ th {
 .secondary.small {
   padding: 6px 10px;
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .stato-pill {
@@ -355,6 +358,7 @@ th {
   font-size: 0.85rem;
   font-weight: 600;
   color: #1a1313;
+  white-space: nowrap;
 }
 
 .stato-in-attesa {
