@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import InterventiTable from '../components/InterventiTable'
+import InterventiMap from '../components/InterventiMap'
 import { fetchChiamate, fetchAttive, fetchArchivio, updateStato } from '../lib/api'
 
 const REFRESH_MS = Number(process.env.NEXT_PUBLIC_REFRESH_MS || 180000)
@@ -156,6 +157,10 @@ export default function Home() {
     return sortItems(filtered, sortField, sortDir)
   }, [archivioItems, archivioFiltroStato, sortField, sortDir])
 
+  const mappaItems = useMemo(() => {
+    return attiveItems.filter((item) => STATI_ATTIVE.includes(item.stato))
+  }, [attiveItems])
+
   const handleFilterReset = () => {
     setComune('')
     setDescrizione('')
@@ -290,6 +295,13 @@ export default function Home() {
           onClick={() => setTab('archivio')}
         >
           Archivio
+        </button>
+        <button
+          type="button"
+          className={"tab-button " + (tab === "mappa" ? "active" : "")}
+          onClick={() => setTab("mappa")}
+        >
+          Mappa
         </button>
       </div>
 
@@ -462,6 +474,20 @@ export default function Home() {
                 onChangeStato={openModal}
                 showArchivioDates
               />
+            )}
+          </section>
+        </>
+      )}
+
+      {tab === "mappa" && (
+        <>
+          {error && <div className="error-banner">{error}</div>}
+
+          <section className="panel">
+            {loading ? (
+              <div className="loading">Caricamento in corso...</div>
+            ) : (
+              <InterventiMap items={mappaItems} />
             )}
           </section>
         </>
