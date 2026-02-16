@@ -14,7 +14,7 @@ function parseCoordinate(value) {
 }
 
 function getMarkerClass(stato) {
-  return stato === 'in carico' ? 'status-marker status-marker--in-carico' : 'status-marker status-marker--in-attesa'
+  return stato === 'in carico' ? 'status-marker map-dot status-marker--in-carico' : 'status-marker map-dot status-marker--in-attesa'
 }
 
 function loadLeaflet() {
@@ -176,8 +176,8 @@ export default function InterventiMap({ items }) {
       const icon = window.L.divIcon({
         className: 'status-marker-wrapper',
         html: `<span class=\"${getMarkerClass(marker.stato)}\" aria-hidden=\"true\"></span>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7]
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
       })
 
       window.L.marker([marker.lat, marker.lon], { icon })

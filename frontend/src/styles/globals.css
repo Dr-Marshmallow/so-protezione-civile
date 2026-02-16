@@ -511,3 +511,25 @@ th {
     margin-left: 0;
   }
 }
+
+/* Migliora la riconoscibilita dei pin sulla mappa */
+.status-marker.map-dot {
+  width: 18px;
+  height: 18px;
+  border-width: 3px;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.status-marker.map-dot.status-marker--in-attesa {
+  background: #d90429;
+}
+
+.status-marker.map-dot.status-marker--in-carico {
+  background: #ffb703;
+}
+
+.status-marker-wrapper {
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.35));
+}
