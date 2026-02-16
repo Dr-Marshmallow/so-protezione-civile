@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap');
 
 :root {
   --bg: #f7efef;
@@ -18,7 +17,7 @@
 
 body {
   margin: 0;
-  font-family: 'Source Sans 3', system-ui, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: radial-gradient(circle at top, #fff5f5, #f3e4e4 60%, #e8d4d4);
   color: var(--ink);
 }
@@ -76,7 +75,7 @@ a:hover {
 }
 
 .hero h1 {
-  font-family: 'Fraunces', serif;
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 2.2rem;
   margin: 0 0 8px;
 }
