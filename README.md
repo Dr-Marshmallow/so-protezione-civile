@@ -31,6 +31,10 @@ MongoDB:
 - `MONGO_DB_NAME`
 - `MONGO_COLLECTION_CHIAMATE`
 
+Sync backend Oracle -> Mongo:
+- `BACKGROUND_SYNC_ENABLED` (`true`/`false`, default `true`)
+- `BACKGROUND_SYNC_INTERVAL_MS` (millisecondi, default `180000`)
+
 ### 2) Frontend
 ```bash
 cd frontend
@@ -61,7 +65,8 @@ npm start
 ```
 
 ## Flusso dati
-- `GET /api/update_chiamate` continua a leggere Oracle (timer 3 min o “Aggiorna ora”).
+- Il backend esegue una sync Oracle -> Mongo anche in background (startup + timer configurabile via env).
+- `GET /api/update_chiamate` continua a leggere Oracle e sincronizzare Mongo quando chiamato da frontend.
 - Le nuove chiamate vengono inserite in Mongo con `stato = "in attesa"`.
 - Le chiamate attive e archivio vengono lette da Mongo.
 - Lo stato si aggiorna **solo** su Mongo (Oracle non viene modificato).
@@ -80,9 +85,9 @@ Body:
 { "id": "<uniqueKey>", "stato": "in carico" }
 ```
 Regole:
-- `in carico` → `presaInCaricoAt = now`
-- `concluso` → `conclusaAt = now`
-- `non più necessario` → `nonPiuNecessarioAt = now`
+- `in carico` -> `presaInCaricoAt = now`
+- `concluso` -> `conclusaAt = now`
+- `non più necessario` -> `nonPiuNecessarioAt = now`
 - Se lo stato torna indietro, i timestamp successivi vengono rimossi.
 
 ### `GET /api/archivio`
