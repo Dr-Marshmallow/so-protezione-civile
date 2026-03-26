@@ -1,13 +1,17 @@
 # SO Protezione Civile
 
-Web app per visualizzare e gestire gli interventi inoltrati dai vigili del fuoco alla protezione civile. Oracle resta la fonte primaria, MongoDB mantiene lo stato operativo e l’archivio. Il frontend include tab Attive/Archivio con cambio stato.
+Web app per visualizzare e gestire gli interventi inoltrati dai vigili del fuoco alla protezione civile. Oracle resta la fonte primaria, MongoDB mantiene lo stato operativo e l'archivio. Il frontend include tab Attive/Archivio con cambio stato.
 
 ## Prerequisiti
 - Node.js 18+ (consigliato 20+)
 - Oracle Client (Instant Client) **necessario** se il tuo server Oracle non è supportato dalla modalità Thin
 - MongoDB (istanza raggiungibile dal backend)
 
-> Nota: se ricevi l’errore `NJS-138`, abilita la modalità thick impostando `DB_LIB_DIR` con il path dell’Instant Client.
+> Nota: se ricevi l'errore `NJS-138`, abilita la modalità thick impostando `DB_LIB_DIR` con il path dell'Instant Client.
+
+## Avvio rapido (Windows)
+
+Esegui `run.bat` dalla root del progetto: apre due terminali separati, uno per il backend e uno per il frontend.
 
 ## Setup da zero
 
@@ -20,6 +24,8 @@ npm run dev
 ```
 
 Configura `.env` con:
+
+Oracle:
 - `DB_USER`
 - `DB_PASSWORD`
 - `DB_CONNECT_STRING` (es. `host:port/service`)
@@ -35,17 +41,30 @@ Sync backend Oracle -> Mongo:
 - `BACKGROUND_SYNC_ENABLED` (`true`/`false`, default `true`)
 - `BACKGROUND_SYNC_INTERVAL_MS` (millisecondi, default `180000`)
 
+Rete:
+- `HOST` (default `0.0.0.0`, ascolta su tutte le interfacce)
+- `PORT` (default `4000`)
+- `CORS_ORIGIN` — origini consentite, separate da virgola (es. `http://172.16.21.64:3000,http://192.168.2.157:3000`)
+
 ### 2) Frontend
 ```bash
 cd frontend
-cp .env.local.example .env.local
 npm install
 npm run dev
 ```
 
 Configura `.env.local`:
-- `NEXT_PUBLIC_API_BASE_URL` (es. `http://localhost:4000`)
+- `NEXT_PUBLIC_API_BASE_URL` — URL del backend usato lato server (SSR). In produzione nel browser l'URL viene rilevato automaticamente dall'hostname corrente, quindi questa variabile è un fallback (es. `http://localhost:4000`).
 - `NEXT_PUBLIC_REFRESH_MS` (intervallo refresh automatico in millisecondi, default `180000`)
+
+## Supporto multi-rete
+
+Il backend ascolta su `0.0.0.0` (tutte le interfacce) e all'avvio stampa in console tutti gli indirizzi IPv4 disponibili. Il frontend rileva automaticamente l'hostname dal browser e costruisce l'URL del backend di conseguenza: la stessa build funziona da reti diverse senza modifiche.
+
+Per abilitare l'accesso da più reti, imposta `CORS_ORIGIN` con tutti gli indirizzi separati da virgola:
+```
+CORS_ORIGIN=http://172.16.21.64:3000,http://192.168.2.157:3000
+```
 
 ## Avvio in produzione
 
@@ -74,10 +93,10 @@ npm start
 ## Endpoint
 
 ### `GET /api/update_chiamate`
-- Fetch Oracle + sync verso Mongo (solo nuove).
+Fetch Oracle + sync verso Mongo (solo nuove).
 
 ### `GET /api/attive`
-- Restituisce chiamate con `stato` in: `in attesa`, `in carico`.
+Restituisce chiamate con `stato` in: `in attesa`, `in carico`.
 
 ### `PATCH /api/chiamate/stato`
 Body:
@@ -103,11 +122,11 @@ Query opzionali:
 Valori univoci per `comuni` e `descrizioni`.
 
 ## Stato e archivio
-- **Tab Attive**: `in attesa`, `in carico` con pulsante “Cambia stato”.
+- **Tab Attive**: `in attesa`, `in carico` con pulsante "Cambia stato".
 - **Tab Archivio**: ricerca per date (obbligatoria) su `dataChiamata` o `dataStatoFinale`. Possibile cambiare stato anche da qui.
 
 ## Identificatore univoco
-Il `numero chiamata` è progressivo giornaliero, quindi **non è univoco**. L’identificatore usato in Mongo è:
+Il `numero chiamata` è progressivo giornaliero, quindi **non è univoco**. L'identificatore usato in Mongo è:
 ```
 <NUMERO_CHIAMATA>-<DATA_CHIAMATA>-<ORA_CHIAMATA>-<COMUNE>
 ```
