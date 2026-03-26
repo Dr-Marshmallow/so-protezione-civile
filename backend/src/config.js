@@ -22,7 +22,9 @@ const config = {
   env: process.env.NODE_ENV || 'development',
   host: process.env.HOST || 'localhost',
   port: Number(process.env.PORT || 4000),
-  corsOrigin: process.env.CORS_ORIGIN || '*',
+  corsOrigin: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
+    : '*',
   db: {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,

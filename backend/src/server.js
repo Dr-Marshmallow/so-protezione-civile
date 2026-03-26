@@ -1,3 +1,4 @@
+const os = require('os')
 const app = require('./app')
 const config = require('./config')
 const { closePool } = require('./db/oracle')
@@ -19,8 +20,13 @@ async function start() {
   await initMongo()
 
   const server = app.listen(config.port, () => {
+    const indirizzi = Object.values(os.networkInterfaces())
+      .flat()
+      .filter((iface) => iface.family === 'IPv4')
+      .map((iface) => `  http://${iface.address}:${config.port}`)
+      .join('\n')
     // eslint-disable-next-line no-console
-    console.log(`Backend in ascolto su http://${config.host}:${config.port}`)
+    console.log(`Backend in ascolto su:\n${indirizzi}`)
   })
 
   let syncTimer = null
