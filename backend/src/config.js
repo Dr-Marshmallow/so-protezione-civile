@@ -20,6 +20,7 @@ const backgroundSyncIntervalMs = Number(process.env.BACKGROUND_SYNC_INTERVAL_MS 
 
 const config = {
   env: process.env.NODE_ENV || 'development',
+  host: process.env.HOST || 'localhost',
   port: Number(process.env.PORT || 4000),
   corsOrigin: process.env.CORS_ORIGIN || '*',
   db: {

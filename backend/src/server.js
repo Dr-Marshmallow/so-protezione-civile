@@ -20,7 +20,7 @@ async function start() {
 
   const server = app.listen(config.port, () => {
     // eslint-disable-next-line no-console
-    console.log(`Backend in ascolto su http://localhost:${config.port}`)
+    console.log(`Backend in ascolto su http://${config.host}:${config.port}`)
   })
 
   let syncTimer = null
